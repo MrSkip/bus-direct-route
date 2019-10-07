@@ -1,9 +1,11 @@
 package com.traveling.busdirectroute;
 
 import com.traveling.busdirectroute.exception.FileNotFoundRuntimeException;
+import com.traveling.busdirectroute.service.FileCacheService;
 import com.traveling.busdirectroute.util.SystemPropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,13 +23,15 @@ public class BusDirectRouteApplication {
     }
 
     @Bean
-    public ApplicationRunner validatePropertiesSet(@Value("${app.file-data-location-property-name}") String fileDataLocationPropertyName) {
+    public ApplicationRunner validatePropertiesSet(@Value("${app.file-data-location-property-name}") String fileDataLocationPropertyName,
+                                                   @Autowired FileCacheService fileCacheService) {
         return args -> {
             final String path = SystemPropertiesUtils.obtain(fileDataLocationPropertyName);
             if (!new File(path).exists()) {
                 throw new FileNotFoundRuntimeException(String.format("File %s doesn't exist", path));
             }
             LOGGER.info("Data file location set to: {}", path);
+            fileCacheService.loadBusRoutes();
         };
     }
 

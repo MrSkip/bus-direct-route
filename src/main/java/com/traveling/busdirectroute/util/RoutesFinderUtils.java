@@ -2,43 +2,19 @@ package com.traveling.busdirectroute.util;
 
 import com.traveling.busdirectroute.exception.FileNotFoundRuntimeException;
 import com.traveling.busdirectroute.exception.GeneralServerRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RoutesFinderUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoutesFinderUtils.class);
 
     private RoutesFinderUtils() {
-    }
-
-    /**
-     * Checking if there is a direct route between two stations
-     *
-     * @param fileDataLocation location of a file data on local storage
-     * @param depSid           departure id of a station
-     * @param arrSid           arrival id of a station
-     * @return true if direct route exists otherwise false
-     */
-    public static boolean lookForDirectRoute(final String fileDataLocation, final int depSid, final int arrSid) {
-        final String depStr = " " + depSid + " ";
-        final String arrStr = " " + arrSid + " ";
-        try (final BufferedReader reader = getBufferedStreamReader(fileDataLocation)) {
-            String line;
-            // first row omitted
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                line = line.trim() + " ";
-                final int depIndex = line.indexOf(depStr);
-                if (depIndex != -1) {
-                    final int arrIndex = line.indexOf(arrStr, depIndex);
-                    if (arrIndex > depIndex) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new GeneralServerRuntimeException(e);
-        }
-        return false;
     }
 
     private static BufferedReader getBufferedStreamReader(String fileDataLocation) {
@@ -46,6 +22,31 @@ public class RoutesFinderUtils {
             return new BufferedReader(new InputStreamReader(new FileInputStream(fileDataLocation)), 8_192);
         } catch (FileNotFoundException e) {
             throw new FileNotFoundRuntimeException(String.format("File {%s} not found", fileDataLocation), e);
+        }
+    }
+
+    public static Map<Integer, List<Integer>> lookForDirectRoute(final String fileDataLocation) {
+        LOGGER.info("Started loading file data");
+        try (final BufferedReader reader = getBufferedStreamReader(fileDataLocation)) {
+            final String firstLine = reader.readLine().trim();
+            final Map<Integer, List<Integer>> map = new HashMap<>(Integer.parseInt(firstLine));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<Integer> list = null;
+                for (String s : line.trim().split(" ")) {
+                    final int station = Integer.parseInt(s);
+                    if (list == null) {
+                        list = new ArrayList<>();
+                        map.put(station, list);
+                    } else {
+                        list.add(station);
+                    }
+                }
+            }
+            LOGGER.info("Finished loading file data");
+            return map;
+        } catch (IOException e) {
+            throw new GeneralServerRuntimeException(e);
         }
     }
 
