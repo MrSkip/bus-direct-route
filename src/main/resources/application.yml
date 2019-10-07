@@ -1,0 +1,5 @@
+server:
+  port: 8088
+
+app:
+  file-data-location-property-name: file_data_location
