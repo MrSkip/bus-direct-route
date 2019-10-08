@@ -23,7 +23,7 @@ public class FileCacheServiceImpl implements FileCacheService {
     @Cacheable(value = CacheNameConstants.BUS_ROUTES_CACHE)
     public Map<Integer, List<Integer>> loadBusRoutes() {
         final String path = SystemPropertiesUtils.obtain(fileDataLocationPropertyName);
-        return RoutesFinderUtils.lookForDirectRoute(path);
+        return RoutesFinderUtils.loadBusRoutes(path);
     }
 
 }

@@ -41,7 +41,7 @@ public class RoutesFinderUtilsTest {
     public void busDirectRouteFinder(final String relatedFileDataPath, final int depSid, final int arrSid, final boolean expected) {
         final String path = RoutesFinderUtilsTest.class.getResource(relatedFileDataPath).getPath();
         final FileCacheService fileCacheService = Mockito.mock(FileCacheService.class);
-        Mockito.when(fileCacheService.loadBusRoutes()).thenAnswer(on -> RoutesFinderUtils.lookForDirectRoute(path));
+        Mockito.when(fileCacheService.loadBusRoutes()).thenAnswer(on -> RoutesFinderUtils.loadBusRoutes(path));
 
         final boolean actual = new BusRoutesServiceImpl(fileCacheService).lookForDirectRoute(depSid, arrSid).isDirectBusRoute();
         Assert.assertEquals("Unexpected route response", expected, actual);

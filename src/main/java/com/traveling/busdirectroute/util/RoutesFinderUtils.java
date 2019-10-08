@@ -25,7 +25,7 @@ public class RoutesFinderUtils {
         }
     }
 
-    public static Map<Integer, List<Integer>> lookForDirectRoute(final String fileDataLocation) {
+    public static Map<Integer, List<Integer>> loadBusRoutes(final String fileDataLocation) {
         LOGGER.info("Started loading file data");
         try (final BufferedReader reader = getBufferedStreamReader(fileDataLocation)) {
             final String firstLine = reader.readLine().trim();
